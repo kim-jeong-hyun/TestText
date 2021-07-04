@@ -106,36 +106,36 @@ void CFormView1::OnBnClickedAddbutton()
 void CFormView1::sliceSpace(CString str, int a) {
 	CTestTextDlg* pMainDlg = (CTestTextDlg*)::AfxGetMainWnd(); //메인 Dlg에 접근
 
-	CStringArray headerArray;
-	headerArray.SetSize(str.GetLength());
+	CStringArray headArray;
+	headArray.SetSize(str.GetLength());
 	int i;
 	int nCount = pMainDlg->GetFineCharCount(str, ' ');
 	switch (a) {
 	case 1:
 		for (i = 0; i <= nCount; i++) {
-			AfxExtractSubString(headerArray[i], str, i, ' ');
+			AfxExtractSubString(headArray[i], str, i, ' ');
 		}
-		m_listCtrl.InsertItem(0, headerArray[0]);
+		m_listCtrl.InsertItem(0, headArray[0]);
 		for (i = 1; i <= nCount; i++) {
-			m_listCtrl.SetItemText(0,i, headerArray[i]);
+			m_listCtrl.SetItemText(0,i, headArray[i]);
 		}
 		break;
 	case 2:
 		for (i = 0; i <= nCount; i++) {
-			AfxExtractSubString(headerArray[i], str, i, ' ');
+			AfxExtractSubString(headArray[i], str, i, ' ');
 		}
-		m_listCtrl.InsertItem(1, headerArray[0]);
+		m_listCtrl.InsertItem(1, headArray[0]);
 		for (i = 1; i <= nCount; i++) {
-			m_listCtrl.SetItemText(1,i, headerArray[i]);
+			m_listCtrl.SetItemText(1,i, headArray[i]);
 		}
 		break;
 	case 3:
 		for (i = 0; i <= nCount; i++) {
-			AfxExtractSubString(headerArray[i], str, i, ' ');
+			AfxExtractSubString(headArray[i], str, i, ' ');
 		}
-		m_listCtrl.InsertItem(2, headerArray[0]);
+		m_listCtrl.InsertItem(2, headArray[0]);
 		for (i = 1; i <= nCount; i++) {
-			m_listCtrl.SetItemText(2,i, headerArray[i]);
+			m_listCtrl.SetItemText(2,i, headArray[i]);
 		}
 		break;
 	}
