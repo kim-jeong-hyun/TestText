@@ -16,16 +16,19 @@ public:
 	CTestTextDlg(CWnd* pParent = NULL);	// 표준 생성자입니다.
 public:
 	CModaless *m_pDlg;
+	void AllocForm();
 	CView* m_pFormView1;
 	CPoint pos;
 	// 대화 상자 데이터입니다.
 	enum { IDD = IDD_TESTTEXT_DIALOG };
 
-	void getHeader(CString& str) { str = header; }
+	void getHeader(CString& str) { str = m_header; }
+	void getData(CString& str) { str = m_data; }
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 지원입니다.
 private:
-	CString header;
+	CString m_header;
+	CString m_data;
 	// 구현입니다.
 protected:
 	HICON m_hIcon;
@@ -36,7 +39,6 @@ protected:
 	CEdit m_editLine; //첫줄 컨트롤
 	CEdit m_editData2; //2번째 데이터 컨트롤
 	CEdit m_editData3; //3번째 데이터 컨트롤
-	//CString header;
 	// 생성된 메시지 맵 함수
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);

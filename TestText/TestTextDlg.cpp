@@ -7,6 +7,7 @@
 #include "TestTextDlg.h"
 #include "afxdialogex.h"
 #include "Resource.h"
+#include <afxtempl.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -49,6 +50,26 @@ CTestTextDlg::CTestTextDlg(CWnd* pParent /*=NULL*/)
 : CDialogEx(CTestTextDlg::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+}
+
+//폼 picture 에 생성하기->따로 위치 지정해줄 필요없음
+void CTestTextDlg::AllocForm()
+{
+	CCreateContext context;
+	ZeroMemory(&context, sizeof(context));
+	
+	CView *pView = (CView*)RUNTIME_CLASS(CFormView1)->CreateObject();
+
+	CRect rectOfPanelArea;
+	GetDlgItem(IDC_PICTURE)->GetWindowRect(&rectOfPanelArea);
+	ScreenToClient(&rectOfPanelArea);
+	
+	pView->Create(NULL, NULL, WS_CHILD, rectOfPanelArea, this, IDD_FORMVIEW1, &context);
+	pView->OnInitialUpdate();
+	m_pFormView1 = pView;
+
+	m_pFormView1->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_PICTURE)->DestroyWindow();
 }
 
 void CTestTextDlg::DoDataExchange(CDataExchange* pDX)
@@ -139,28 +160,16 @@ BOOL CTestTextDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
-	CRect rc;
-	GetClientRect(&rc);
-	rc.left = 850;
-	rc.top = 400;
-	rc.right = 1590;
-	rc.bottom = 650;
 
 	//FormView 실제 생성
-	CCreateContext cc;
-	CView *pView = (CView*)RUNTIME_CLASS(CFormView1)->CreateObject();
-	ZeroMemory(&cc, sizeof(cc));
-	pView->Create(nullptr, nullptr, WS_CHILD, rc, this, IDD_FORMVIEW1, &cc);
-	pView->OnInitialUpdate();
-	m_pFormView1 = pView;
-	
-	m_pFormView1->ShowWindow(SW_HIDE);
-	//FormView 실제 생성
+	AllocForm();
 
+	//변수 초기화
 	totalPacket.SetSize(150);//전체 패킷 길이 설정
 	nEng = 1;
 	nCount = 0;
 	totalCount = 0;
+	//변수 초기화
 
 	//번호 데이터 길이 제한
 	m_NumData.SetLimitText(100);
@@ -170,7 +179,8 @@ BOOL CTestTextDlg::OnInitDialog()
 
 	m_numSpin.SetRange(0, 500); //0-500까지
 	m_numSpin.SetPos(0); 
-	
+	//스핀 컨트롤 초기화
+
 	//스크롤바
 	CRect VScroll; //스크롤바 위치 저장 변수
 	CRect HScroll;
@@ -185,7 +195,8 @@ BOOL CTestTextDlg::OnInitDialog()
 
 	origin.x = HScroll.left; //origin 초기화
 	origin.y = VScroll.top;
-	
+	//스크롤바
+
 	//라디오 버튼 초기화
 	m_rbButton.SetWindowText(_T("라디오 버튼 확인"));
 	m_rb1.SetCheck(BST_CHECKED); //체크된 상태
@@ -199,11 +210,14 @@ BOOL CTestTextDlg::OnInitDialog()
 	m_progress.SetRange(0, 100);
 	m_progress.SetPos(0);
 	m_progress.SetBarColor(RGB(132, 231, 36));
+	//프로그레스 바
+
 	//영문 번호 추가
 	m_ComboNum2.AddString(_T("751"));
 	m_ComboNum2.AddString(_T("752"));
 	m_ComboNum2.AddString(_T("753"));
 	m_ComboNum2.AddString(_T("754"));
+	
 	//영문 반복횟수 추가
 	m_ComboCount.AddString(_T("1"));
 	m_ComboCount.AddString(_T("2"));
@@ -358,11 +372,14 @@ void CTestTextDlg::OnBnClickedButtonSlice()
 	AfxExtractSubString(l_data_1st, oneLine, 1, '<'); //데이터 분리 <를 기준으로 뒤에꺼를 말함
 	AfxExtractSubString(l_data_2nd, twoLine, 1, '<'); //데이터 분리 <를 기준으로 뒤에꺼를 말함
 	AfxExtractSubString(l_data_3rd, threeLine, 1, '<'); //데이터 분리 <를 기준으로 뒤에꺼를 말함
-
+	
 	sliceStr(m_editData1, &l_data_1st, 1);
 	sliceStr(m_editData2, &l_data_2nd, 2);
 	sliceStr(m_editData3, &l_data_3rd, 3);
+	
+	m_data += l_data_1st + ":" + l_data_2nd + ":" + l_data_3rd;
 	//데이터 : 데이터 출력
+
 }
 
 //한줄 출력
@@ -376,31 +393,35 @@ void CTestTextDlg::replaceSpace(CString pStr) {
 
 //헤더 출력
 void CTestTextDlg::showHeader(CString *pText, int a) {
+
 	int iSub = 0;
 	CStringArray strArray;
-	//header;
 	strArray.SetSize(8);//크기 설정
-
+	CString tempHeader;
+	
 	for (iSub = 0; iSub < 8; iSub++) {
 		AfxExtractSubString(strArray[iSub], *pText, iSub, '^'); //헤더 ^로 자르기
 	}
 	for (iSub = 0; iSub < 8; iSub++) {
-		header += strArray.GetAt(iSub);
-		header += "\r\n";
+		tempHeader += strArray.GetAt(iSub);
+		tempHeader += "\r\n";
 	}
+
 	switch (a) {
 	case 1:
-		SetDlgItemText(IDC_EDIT3, header);
+		SetDlgItemText(IDC_EDIT3, tempHeader);
+		m_header += tempHeader;
 		break;
 	case 2:
-		SetDlgItemText(IDC_EDIT5, header);
+		SetDlgItemText(IDC_EDIT5, tempHeader);
+		m_header += tempHeader;
 		break;
 	case 3:
-		SetDlgItemText(IDC_EDIT6, header);
+		SetDlgItemText(IDC_EDIT6, tempHeader);
+		m_header += tempHeader;
 		break;
 	}
-// 	CString temp;
-// 	getHeader(temp);
+
 }
 
 //데이터 출력
@@ -535,7 +556,7 @@ void CTestTextDlg::sliceData(CEdit& edit, CString *pStr, int iSub, CString s_cou
 			}
 		}
 
-		if (i == k - 1) { //마지막 i에서 공백을 못찾아서 따로 뺌
+		if (i == k - 1) { //마지막 i 에서 공백을 못찾아서 따로 뺌
 			temp += pStr->Mid(t, i - t);
 			if (iSub > 0) temp += "\r\n";
 			if (count % 4 != 0) {
@@ -548,15 +569,16 @@ void CTestTextDlg::sliceData(CEdit& edit, CString *pStr, int iSub, CString s_cou
 		}
 	}
 }
+
 //공백에 ,넣기 함수
 CString CTestTextDlg::addSpace(CString *str) {
 	CUIntArray array;
 	int j;
 	int a;
-	int q = GetFineCharCount(*str, ' '); //스페이스 개수
+	int countSpace = GetFineCharCount(*str, ' '); //스페이스 개수
 	array.SetSize(10);
 
-	for (j = 0; j < q; j++) { //스페이스 개수만큼 반복
+	for (j = 0; j < countSpace; j++) { //스페이스 개수만큼 반복
 		if (j == 0) { //첫번째 스페이스 찾기
 			a = str->Find(' ');
 			array[j] = a;
@@ -567,7 +589,7 @@ CString CTestTextDlg::addSpace(CString *str) {
 			a = b;
 		}
 	}
-	for (int i = 1; i < q; i++) {
+	for (int i = 1; i < countSpace; i++) {
 		if (i == 1) {
 			str->Insert(array[i], ',');
 		}
@@ -855,6 +877,7 @@ void CTestTextDlg::OnBnClickedOutputbutton()
 	//전체 데이터 출력
 	if (totalCount == 0) {
 		MessageBox(_T("패킷 미완성"));
+		TRACE0(_T("패킷 미완성"));
 	}
 	else if (totalCount == 1) {
 		CString temp = totalPacket[totalCount - 1];
@@ -901,7 +924,6 @@ void CTestTextDlg::outputText(CString *pStr) {
 		MessageBox(_T("패킷 읽기 종료"));
 		m_editPacket.SetSel(-1, -1);
 		m_editPacket.Clear();
-	
 	}
 }
 
@@ -1034,18 +1056,18 @@ void CTestTextDlg::OnBnClickedModalbutton()
 	}
 	m_pDlg->ShowWindow(SW_SHOW);
 }
+//폼 나타내기
 void CTestTextDlg::OnBnClickedButtonform()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다
 	m_pFormView1->ShowWindow(SW_SHOW);
 }
-
+//폼 숨기기
 void CTestTextDlg::OnBnClickedFormhide()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	m_pFormView1->ShowWindow(SW_HIDE);
 }
-
 
 void CTestTextDlg::OnMouseMove(UINT nFlags, CPoint point)
 {
